@@ -3,7 +3,8 @@ import web3 from '../ethereum/web3';
 import {Link} from 'react-router-dom';
 import MotionsContract from '../ethereum/motions';
 import CommunityMotionContract from '../ethereum/communityMotion';
-import { Card, Button } from 'semantic-ui-react';
+import { Button } from 'semantic-ui-react';
+import CardComponent from './CardComponent';
 
 class Motions extends React.Component {
 
@@ -37,33 +38,13 @@ class Motions extends React.Component {
         });
     }
 
+    goToMotion = (address) => {
+        this.props.history.push(`/motion/${address}`)
+    }
+
     renderMotions() {
         return (
-            <Card.Group>
-                {this.state.communityMotions.map( communityMotion => {
-                    return (
-                        <Card key={communityMotion.address}>
-                            <Card.Content>
-                                <Card.Header>{communityMotion.campaignTitle}</Card.Header>
-                                <Card.Meta>Donated: {communityMotion.totalDonated}</Card.Meta>
-                                <Card.Description>
-                                    {communityMotion.campaignDescription}<br/>
-                                </Card.Description>
-                            </Card.Content>
-                            <Card.Content extra>
-                                <div className='ui two buttons'>
-                                    <Button basic primary>
-                                        Donate
-                                    </Button>
-                                    <Button basic secondary>
-                                        View
-                                    </Button>
-                                </div>
-                            </Card.Content>
-                        </Card>
-                    )
-                })}
-            </Card.Group>
+            <CardComponent communityMotions={this.state.communityMotions}></CardComponent>
         )
     }
 

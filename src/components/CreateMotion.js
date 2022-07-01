@@ -1,68 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Form, Input, TextArea, Label, Button } from 'semantic-ui-react';
 import MotionsContract from '../ethereum/motions'
 import web3 from '../ethereum/web3';
-import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-export function withRouter(Children){
-    return(props)=>{
-       const history  = {params: useParams()};
-       return <Children {...props}  history = {history}/>
-   }
- }
+function CreateMotion(props) {
+    
+    const [title,setTitle] = useState("");
+    const [description,setDescription] = useState("");
+    const [limitAmount, setLimitAmount] = useState();
+    const [loading, setLoading] = useState(false);
 
-class CreateMotion extends React.Component {
-    state = {
-        title:'',
-        description:'',
-        limitAmount:''
-    }
+    const navigate = useNavigate();
 
-    componentDidMount() {
-        const nesto = this.props.history.params;
-        console.log(nesto);
-    }
-
-    onSubmit = async (ev) => {
+    const onSubmit = async (ev) => {
         ev.preventDefault();
+        setLoading(true);
         await window.ethereum.enable();
         const accounts = await web3.eth.getAccounts();
         const motions = MotionsContract();
-        const {title, description, limitAmount} = this.state;
+        //const {title, description, limitAmount} = this.state;
         await motions.methods.createRequests(title, description, limitAmount).send({from:accounts[0]});
         const motionAddresses = await motions.methods.getRequests().call({from:accounts[0]});
         const lastMotion = motionAddresses[motionAddresses.length-1];
-        this.props.history.push(`/motion/${lastMotion}`);
+        setLoading(false);
+        navigate(`/motion/${lastMotion}`);
+        //this.props.history.push(`/motion/${lastMotion}`);
         //history.push(`/motion/${lastMotion}`);
         //<Link to={`/motion/${lastMotion}`}></Link>
         //<Redirect to="/motion/1" /> 
     }
 
-    render() {
+    //render() {
         return (
-            <Form onSubmit={this.onSubmit}>
+            <Form onSubmit={onSubmit}>
             <Input 
                 fluid
                 label="Title" 
-                value={this.state.title}
-                onChange={event => this.setState({title:event.target.value})}
+                value={title}
+                onChange={event => setTitle(event.target.value)}
                 /><br/>
             <Label size={'large'}>Description</Label>
             <TextArea 
                 rows={3}
-                value={this.state.description}
-                onChange={event => this.setState({description:event.target.value})}
+                value={description}
+                onChange={event => setDescription(event.target.value)}
                 /><br/><br/>
             <Input 
                 fluid 
                 label="Limit"
-                value={this.state.limitAmount}
-                onChange={event => this.setState({limitAmount:event.target.value})} 
+                value={limitAmount}
+                onChange={event => setLimitAmount(event.target.value)} 
                 /><br/>
-            <Button primary type='submit'>Create</Button>
+            <Button loading={loading} primary type='submit'>Create</Button>
         </Form>
         )
-    }
+    //}
 }
 
-export default withRouter(CreateMotion);
+export default CreateMotion;

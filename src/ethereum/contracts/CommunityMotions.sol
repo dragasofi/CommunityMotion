@@ -8,7 +8,7 @@ contract CommunityMotions {
      string public campaignTitle;
      uint public limitAmount;
      
-     address[] public donors;
+     address payable[] public donors;
      mapping(address => uint) public donations;
      
      constructor(string memory title, string memory description, uint limit, address payable creator) public {
@@ -38,5 +38,9 @@ contract CommunityMotions {
      modifier isLimitValid() {
         require(msg.value >= limitAmount, "Insufficient donation amount.");
         _;
+    }
+
+    function getAllDonors() public view returns(address payable[] memory){
+        return donors;
     }
 }
